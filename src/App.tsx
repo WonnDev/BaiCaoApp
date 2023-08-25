@@ -11,6 +11,7 @@ const initialState = {
   ],
   deckId: null,
   deckCardRemaining: null,
+  winners: [],
   shuffle: false,
   drawn: false,
   gameOver: false,
@@ -26,6 +27,7 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckId: action.payload.deck_id,
         deckCardRemaining: action.payload.remaining,
       };
+
     case "SHUFFLE_CARDS":
       // Xử lý trộn bài
       return {
@@ -33,9 +35,10 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckId: action.payload.deck_id,
         deckCardRemaining: action.payload.remaining,
       };
+
     case "DRAW_CARDS":
       // Xử lý chia bai
-      const updatedPlayersCards = state?.players.map(
+      const updatedPlayersCards = state?.players?.map(
         (player: any, index: any) => {
           // Chia bài (3 lá) cho mỗi người chơi từ các lá bài đã lấy
           const playerCards = action.payload.cards.slice(
@@ -55,12 +58,15 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckCardRemaining: action.payload.remaining,
         cards: action.payload.cards,
       };
+
     case "REVEAL_CARDS":
       // Xử lý việc tính điểm và xác định người thắng
+      // Create arr
+      let pointList: any = [];
+      // Get player from playerList
       const updatedPlayerPoint = state?.players?.map((player: any) => {
-        // Get player from playerList
+        // Get card from player and trans then parse all to int
         const value: any = player.cards.map((cardList: any) => {
-          // Get card from player obj and trans then parse to int
           if (cardList.value === "ACE") return 1;
           if (
             cardList.value === "JACK" ||
@@ -71,18 +77,59 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
           return parseInt(cardList.value);
         });
         // Sum of cardList (point of 3 card)
-        const parseValue: any = value.reduce((prev: any, currentCard: any) => {
-          return prev + currentCard;
-        }, 0);
+        const parseValue: any = value.reduce(
+          (prev: any, currentCardPoint: any) => {
+            return prev + currentCardPoint;
+          },
+          0
+        );
+        // Get item of pointList
+        pointList.push(parseValue % 10);
+
         return {
           ...player,
           points: parseValue,
           point: parseValue % 10,
         };
       });
-      console.log("player point:", { updatedPlayerPoint });
 
-      return { ...state, players: updatedPlayerPoint, gameOver: true };
+      // Get Max point
+      const maxPoint = pointList?.reduce(function (
+        accumulator: any,
+        element: any
+      ) {
+        return accumulator > element ? accumulator : element;
+      });
+      console.log("max", maxPoint);
+      console.log("update: ", updatedPlayerPoint);
+
+      // Trừ tiền từ người chơi thua
+      const winners: any = [];
+      // if (state?.players[0].point === maxPoint)
+      //   winners.push(state?.players[0].name);
+      // if (state?.players[1].point === maxPoint)
+      //   winners.push(state?.players[1].name);
+      // if (state?.players[2].point === maxPoint)
+      //   winners.push(state?.players[2].name);
+      // if (state?.players[3].point === maxPoint)
+      //   winners.push(state?.players[3].name);
+      const updatedPlayerCoin = updatedPlayerPoint.map((player: any) => {
+        if (player.point === maxPoint) winners.push(player.name);
+        if (!winners.includes(player.name)) {
+          // Trừ 900 coins nếu người chơi thua
+          player.coins -= 900;
+        }
+        console.log([winners]);
+        return { ...player };
+      });
+      //
+
+      return {
+        ...state,
+        players: updatedPlayerCoin,
+        gameOver: true,
+      };
+
     case "RESET_GAME":
       // Reset cards per player
       return {
@@ -163,6 +210,9 @@ const App = () => {
   };
 
   const resetGame = () => {
+    setIsShuffling(false);
+    setIsDrawing(false);
+    setIsRevealing(false);
     axios
       .get(`https://deckofcardsapi.com/api/deck/new/`)
       .then((res) => {
@@ -197,7 +247,7 @@ const App = () => {
     <div id="view_player">
       <div className="group-view border">
         <div className="cards">
-          {state?.players?.[3].cards.map((img: any, i: number) => {
+          {state?.players?.[3].cards?.map((img: any, i: number) => {
             return (
               <div key={i}>
                 <img className="card-item" src={img.image} alt="cards" />
@@ -259,7 +309,6 @@ const App = () => {
           className="border border-btn btn-reset"
           type="button"
           onClick={() => {
-            console.log("reset game!");
             resetGame();
           }}
         >
@@ -280,7 +329,7 @@ const App = () => {
             </div>
           )}
           <div className="img-cards">
-            {state?.players?.[0].cards.map((image: any, i: number) => {
+            {state?.players?.[0].cards?.map((image: any, i: number) => {
               return (
                 <div key={i} className="item-card">
                   <img src={image.image} alt="cards" />
