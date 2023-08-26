@@ -33,8 +33,8 @@ button:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 240px;
-	height: 215px;
+  width: 250px;
+	height: 220px;
 	position: relative;
   background: #D8B98D;
   padding: 22px;
@@ -46,7 +46,7 @@ button:hover {
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  width: 350px;
+  width: 360px;
 	height: 190px;
 	position: relative;
 	top: 15%;
@@ -103,18 +103,18 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: start;
-  margin-top: .5rem;
 }
 .user-info > p {
-  margin: .4rem 0;
+  margin: .3rem 0;
   font-weight: 500;
   font-size: 18px;
 }
 .cards {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
-.card-item {
+.cards img {
   width: 80px;
   padding-right: 2px;
 }
@@ -142,12 +142,12 @@ button:hover {
   right: 40px;
 	top: 290px;
 }
-.img-cards {
+.cards-player {
   display: flex;
   position: absolute;
   top: 115px;
 }
-.item-card > img {
+.cards-player img {
   width: 50px;
   padding-right: 2px;
 }
@@ -159,4 +159,11 @@ button:hover {
 .player-other > p {
   margin: 0 0 .2rem 0;
   font-size: 13px;
+}
+.noti {
+  color: #ff2323;
+  font-size: 50px;
+  font-weight: bold;
+  position: absolute;
+  top: 58%;
 }
