@@ -142,6 +142,9 @@ button:hover {
   right: 40px;
 	top: 290px;
 }
+.mask-cards {
+  display: flex;
+}
 .cards-player {
   display: flex;
   position: absolute;
@@ -161,8 +164,8 @@ button:hover {
   font-size: 13px;
 }
 .noti {
-  color: #ff2323;
-  font-size: 50px;
+  color: #161d95;
+  font-size: 32px;
   font-weight: bold;
   position: absolute;
   top: 58%;

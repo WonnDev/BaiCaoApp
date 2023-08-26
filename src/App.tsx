@@ -14,7 +14,7 @@ const initialState = {
     },
     {
       name: "Player B",
-      coins: 900,
+      coins: 5000,
       points: 0,
       point: 0,
       gameOver: false,
@@ -22,7 +22,7 @@ const initialState = {
     },
     {
       name: "Player C",
-      coins: 1800,
+      coins: 5000,
       points: 0,
       point: 0,
       gameOver: false,
@@ -30,7 +30,7 @@ const initialState = {
     },
     {
       name: "Player D",
-      coins: 900,
+      coins: 5000,
       points: 0,
       point: 0,
       gameOver: false,
@@ -39,8 +39,6 @@ const initialState = {
   ],
   deckId: null,
   deckCardRemaining: null,
-  numberOfPlayer: 4,
-  backOfCard: null,
   revael: false,
   shuffle: false,
   drawn: false,
@@ -56,7 +54,6 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         ...state,
         deckId: action.payload.deck_id,
         deckCardRemaining: action.payload.remaining,
-        backOfCard: action.payload.config?.url,
       };
 
     case "SHUFFLE_CARDS":
@@ -78,8 +75,6 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
 
     case "DRAW_CARDS":
       // Xử lý chia bai
-      console.log("updatePlayerCard(asd): ", action.payload.cards);
-
       const updatedPlayersCards = state?.players?.map(
         (player: any, index: any) => {
           // Chia bài (3 lá) cho mỗi người chơi từ các lá bài đã lấy
@@ -94,7 +89,7 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
           };
         }
       );
-      console.log("updatePlayerCard(): ", updatedPlayersCards);
+      // console.log("updatePlayerCard(): ", updatedPlayersCards);
       return {
         ...state,
         players: updatedPlayersCards,
@@ -150,44 +145,33 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
 
       // Trừ tiền từ người chơi thua , Deduct money from the losing player
       const winners: any = [];
+      const losers: any = [];
       const updatedPlayerCoin = updatedPlayerPoint.map((player: any) => {
         if (player.point === maxPoint) winners.push(player.name);
         if (!winners.includes(player.name)) {
           // Trừ 900 coins nếu người chơi thua
           if (player.coins > 900) {
             player.coins -= 900;
+            losers.push(player.name);
           } else {
             player.gameOver = true;
-            player = [];
           }
         }
         return { ...player };
       });
+      console.log(losers);
       const updatedListPlayers = updatedPlayerCoin.filter(
         (player: any) => player.gameOver === false
       );
-      if (updatedListPlayers.length === 1) {
-        window.alert(`Congratulation ${updatedListPlayers?.[0].name}!`);
-      } else if (
-        updatedListPlayers.length === 2 &&
-        updatedListPlayers?.[0].coins < 900 &&
-        updatedListPlayers?.[1].coins < 900
-      ) {
-        window.alert(
-          `Drawn Match! Congratulation ${updatedListPlayers?.[0].name} and ${updatedListPlayers?.[1].name}!`
-        );
-      }
-
-      console.log("updatedListPlayers:", updatedListPlayers.length);
-      console.log("state:", state.numberOfPlayer);
+      // console.log("updatedListPlayers:", updatedListPlayers.length);
 
       return {
         ...state,
         players: updatedListPlayers,
         winners: winners,
+        losers: losers,
         gameOver: true,
         revael: true,
-        numberOfPlayer: updatedListPlayers.length,
       };
 
     case "RESET_GAME":
@@ -209,9 +193,9 @@ const App = () => {
   const [isShuffling, setIsShuffling] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
-
-  const [numberOfPlayer, setNumberOfPlayer] = useState(4);
   const [hide, setHide] = useState(false);
+  const [show, setShow] = useState(Boolean);
+  const [backCard, setBackCard] = useState("");
 
   const shuffleDeck = () => {
     setIsShuffling(true);
@@ -232,10 +216,11 @@ const App = () => {
       });
   };
 
-  const drawCards = (player: any) => {
-    if (state.deckCardRemaining < numberOfPlayer * 3) {
+  const drawCards = () => {
+    if (state.deckCardRemaining < state.players.length * 3) {
       window.alert("Not Enough Card, Please Shuffle!");
     } else {
+      setShow(false);
       setHide(false);
       setIsDrawing(true);
       setTimeout(() => {
@@ -245,7 +230,7 @@ const App = () => {
       axios
         .get(
           `https://deckofcardsapi.com/api/deck/${state.deckId}/draw/?count=${
-            player * 3
+            state.players.length * 3
           }`
         )
         .then((res) => {
@@ -260,6 +245,7 @@ const App = () => {
     }
   };
   const revealCards = () => {
+    setShow(true);
     setHide(true);
     setIsRevealing(true);
     setTimeout(() => {
@@ -301,9 +287,57 @@ const App = () => {
       </>
     );
   };
+  const CardHostback = () => {
+    return (
+      <>
+        <div className="mask-cards">
+          <img src={backCard} alt="cards" />
+          <img src={backCard} alt="cards" />
+          <img src={backCard} alt="cards" />
+        </div>
+      </>
+    );
+  };
+  const InfoPlayer = (props: any) => {
+    return (
+      <>
+        {!state.gameOver ? (
+          `${state?.players?.[props.value].name}`
+        ) : (
+          <div className="player-other">
+            <p>
+              Point:{" "}
+              {state?.players?.[props.value]
+                ? `${state?.players?.[props.value].point}`
+                : ""}{" "}
+            </p>
+            <p>
+              Coins:{" "}
+              {state?.players?.[props.value]
+                ? `${state?.players?.[props.value].coins}`
+                : ""}
+            </p>
+            <p>
+              <b style={{ fontSize: "13px" }}>
+                {state?.players?.[props.value]
+                  ? `${state?.players?.[props.value].name}`
+                  : ""}
+              </b>
+            </p>
+            <p>
+              Point of 3 cards:{" "}
+              {state?.players?.[props.value]
+                ? `${state?.players?.[props.value].points}`
+                : ""}
+            </p>
+          </div>
+        )}
+      </>
+    );
+  };
 
   useEffect(() => {
-    // Lấy một bộ bài mới từ API và lưu deckId vào trạng thái
+    // Call API to get card, save deckId to state
     axios
       .get("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
       .then((res) => {
@@ -313,18 +347,30 @@ const App = () => {
         });
         console.log("Start!");
       })
-      .catch((error) => {
-        console.error("Error fetching deck:", error);
-      });
-    const fetchImg = async () => {
-      const res = await fetch("https://deckofcardsapi.com/static/img/back.png");
-    };
-    fetchImg().catch(console.error);
+      .catch(console.error);
+    axios
+      .get("https://deckofcardsapi.com/static/img/back.png")
+      .then((res) => {
+        const imageURL: any = res.config.url;
+        setBackCard(imageURL);
+      })
+      .catch(console.error);
+    revealCards();
+    resetGame();
   }, []);
-
   useEffect(() => {
     if (state?.gameOver) {
-      setNumberOfPlayer(state.numberOfPlayer);
+      if (state?.players?.length === 1) {
+        window.alert(`Congratulation ${state?.players?.[0].name}!`);
+      } else if (
+        state?.players?.length === 2 &&
+        state?.players?.[0].coins < 900 &&
+        state?.players?.[1].coins < 900
+      ) {
+        window.alert(
+          `Drawn Match! Congratulation ${state?.players?.[0].name} and ${state?.players?.[1].name}!`
+        );
+      }
     }
   }, [state]);
 
@@ -343,7 +389,9 @@ const App = () => {
           </p>
           <p>
             <b style={{ fontSize: "22px" }}>
-              {state?.players?.[0] ? `${state?.players?.[0].name}` : "Had Lost"}
+              {state?.players?.[0]
+                ? `${state?.players?.[0].name}`
+                : "Lost Player"}
             </b>
           </p>
           <p>
@@ -358,6 +406,15 @@ const App = () => {
             ""
           ) : (
             <div>{state?.winners ? `Winner: ${state?.winners[0]}` : ""}</div>
+          )}
+          {!hide ? (
+            ""
+          ) : (
+            <div style={{ color: "gray" }}>
+              {state?.losers
+                ? `Losers: ${state?.losers[0]}, ${state?.losers[1]}, ${state?.losers[2]}`
+                : ""}
+            </div>
           )}
         </div>
       </div>
@@ -387,7 +444,7 @@ const App = () => {
             type="button"
             disabled={isDrawing}
             onClick={() => {
-              drawCards(numberOfPlayer);
+              drawCards();
             }}
           >
             {isDrawing ? "Drawing..." : "Draw"}
@@ -406,7 +463,6 @@ const App = () => {
           className="border border-btn btn-reset"
           type="button"
           onClick={() => {
-            setNumberOfPlayer(4);
             resetGame();
           }}
         >
@@ -415,122 +471,33 @@ const App = () => {
       </div>
       <div className="group-other-player">
         <div className="other-player-top other-player border">
-          {!state?.players?.[1] ? (
-            "Had Lost"
-          ) : (
-            <div>
-              {!state.gameOver ? (
-                `${state?.players?.[1].name}`
-              ) : (
-                <div className="player-other">
-                  <p>
-                    Point:{" "}
-                    {state?.players?.[1] ? `${state?.players?.[1].point}` : ""}{" "}
-                  </p>
-                  <p>
-                    Coins:{" "}
-                    {state?.players?.[1] ? `${state?.players?.[1].coins}` : ""}
-                  </p>
-                  <p>
-                    <b>
-                      {state?.players?.[1] ? `${state?.players?.[1].name}` : ""}
-                    </b>
-                  </p>
-                  <p>
-                    Point of 3 cards:{" "}
-                    {state?.players?.[1] ? `${state?.players?.[1].points}` : ""}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-          {/* {!state.gameOver ? (
-            <div className="name-player">
-              {state?.players?.[1] ? `${state?.players?.[1].name}` : "Had Lost"}
-            </div>
-          ) : (
-            <div className="player-other">
-              <p>
-                Point:{" "}
-                {state?.players?.[1] ? `${state?.players?.[1].point}` : ""}{" "}
-              </p>
-              <p>
-                Coins:{" "}
-                {state?.players?.[1] ? `${state?.players?.[1].coins}` : ""}
-              </p>
-              <p>
-                <b>
-                  {state?.players?.[1] ? `${state?.players?.[1].name}` : ""}
-                </b>
-              </p>
-              <p>
-                Point of 3 cards:{" "}
-                {state?.players?.[1] ? `${state?.players?.[1].points}` : ""}
-              </p>
-            </div>
-          )} */}
+          {!state?.players?.[1] ? "Lost Player" : <InfoPlayer value={1} />}
           <div className="cards-player">
-            {state?.players?.[1] ? <CardHost value={1} /> : ""}
+            {state?.players?.[1] ? (
+              <>{!!!show ? <CardHostback /> : <CardHost value={1} />}</>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="other-player-left other-player border">
-          {!state.gameOver ? (
-            <div className="name-player">
-              {state?.players?.[2] ? `${state?.players?.[2].name}` : "Had Lost"}
-            </div>
-          ) : (
-            <div className="player-other">
-              <p>
-                Point:{" "}
-                {state?.players?.[2] ? `${state?.players?.[2].point}` : ""}{" "}
-              </p>
-              <p>
-                Coins:{" "}
-                {state?.players?.[2] ? `${state?.players?.[2].coins}` : ""}
-              </p>
-              <p>
-                <b>
-                  {state?.players?.[2] ? `${state?.players?.[2].name}` : ""}
-                </b>
-              </p>
-              <p>
-                Point of 3 cards:{" "}
-                {state?.players?.[2] ? `${state?.players?.[2].points}` : ""}
-              </p>
-            </div>
-          )}
+          {!state?.players?.[2] ? "Lost Player" : <InfoPlayer value={2} />}
           <div className="cards-player">
-            {state?.players?.[2] ? <CardHost value={2} /> : ""}
+            {state?.players?.[2] ? (
+              <>{!show ? <CardHostback /> : <CardHost value={2} />}</>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="other-player-right other-player border">
-          {!state.gameOver ? (
-            <div className="name-player">
-              {state?.players?.[3] ? `${state?.players?.[3].name}` : "Had Lost"}
-            </div>
-          ) : (
-            <div className="player-other">
-              <p>
-                Point:{" "}
-                {state?.players?.[3] ? `${state?.players?.[3].point}` : ""}{" "}
-              </p>
-              <p>
-                Coins:{" "}
-                {state?.players?.[3] ? `${state?.players?.[3].coins}` : ""}
-              </p>
-              <p>
-                <b>
-                  {state?.players?.[3] ? `${state?.players?.[3].name}` : ""}
-                </b>
-              </p>
-              <p>
-                Point of 3 cards:{" "}
-                {state?.players?.[3] ? `${state?.players?.[3].points}` : ""}
-              </p>
-            </div>
-          )}
+          {!state?.players?.[3] ? "Lost Player" : <InfoPlayer value={3} />}
           <div className="cards-player">
-            {state?.players?.[3] ? <CardHost value={3} /> : ""}
+            {state?.players?.[3] ? (
+              <>{!show ? <CardHostback /> : <CardHost value={3} />}</>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>
