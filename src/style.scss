@@ -115,6 +115,9 @@ button {
 		padding-right: 2px;
 	}
 }
+.group-other-player {
+    margin-right: 110px;
+}
 .other-player {
 	width: 100px;
 	height: 100px;
@@ -129,15 +132,14 @@ button {
 .other-player-top {
 	top: 10px;
 	flex-direction: column;
-	left: 45%;
 }
 .other-player-left {
-	left: 45px;
-	top: 300px;
+	left: 40px;
+	top: 275px;
 }
 .other-player-right {
 	right: 40px;
-	top: 290px;
+	top: 275px;
 }
 .mask-cards {
 	display: flex;
@@ -161,9 +163,40 @@ button {
 	}
 }
 .noti {
-	color: $color_2;
 	font-size: 32px;
 	font-weight: bold;
 	position: absolute;
 	top: 58%;
+    .noti-winnerslist {
+        color:#cadc14;
+    }
+    .noti-loserslist {
+        color: darkgray;
+    }
 }
+@media screen and (max-width: 480px) {
+    .other-player {
+        width: 90px;
+        height: 90px;
+    }
+    .other-player-top {
+        left: 155px;
+    }
+    .other-player-left {
+        top:10px;
+        left: 20px;
+    }
+    .other-player-right {
+        top:10px;
+        right: 20px;
+    }
+    .cards-player img {
+        width: 35px;
+    }
+    .noti {
+        font-size: 22px;
+    }
+    .player-other > p {
+        font-size: 12px;
+    }
+  }

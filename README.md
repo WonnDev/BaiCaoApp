@@ -1,46 +1,106 @@
-# Getting Started with Create React App
+## Business and Report
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Trò Chơi Bài Cào
 
-## Available Scripts
+![Preview](link_to_preview_image.png)
 
-In the project directory, you can run:
+## Mô Tả
 
-### `npm start`
+Đây là một ứng dụng trò chơi bài cào trực tuyến đơn giản được xây dựng bằng React, TypeScript và sử dụng API để chơi bài cào. Trò chơi bao gồm các chức năng cơ bản như trộn bài, chia bài, trả kết quả và khởi tạo lại trò chơi.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Chức Năng Cơ Bản
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- **Bàn Chơi (Game Board)**:
 
-### `npm test`
+  - Hiển thị thông tin của người chơi.
+  - Hiển thị số tiền (Coins).
+  - Hiển thị điểm của người chơi (Point of 3 Cards).
+  - Hiển thị lá bài khi nhận.
+  - Hiển thị số lượng lá bài còn lại trong Deck Cards.
+  - Hiển thị thông tin vị trí của 4 người chơi.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Nút Chức Năng**:
 
-### `npm run build`
+  - Nút Shuffle (Trộn bài).
+  - Nút Draw (Chia bài).
+  - Nút Reveal (Trả kết quả).
+  - Nút Reset (Khởi tạo lại trò chơi).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Luật Chơi**:
+  - Tạo một bộ bài tây 52 lá.
+  - Chia bài cho người chơi (mỗi người 3 lá).
+  - Tính điểm của người chơi dựa trên 3 lá bài.
+  - Xác định người thắng và người thua.
+  - Trừ tiền người chơi thua.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Kế Hoạch Làm Việc
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Thiết Kế Giao Diện**:
 
-### `npm run eject`
+   - Thiết kế giao diện bàn chơi với các phần hiển thị thông tin và nút chức năng.
+   - Xây dựng các component React cho người chơi và các phần tử giao diện.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+2. **Quản lý State và Logic**:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   - Xác định cách lưu trữ trạng thái trò chơi (state).
+   - Xây dựng reducer để xử lý các hành động như Shuffle, Draw, Reveal, Reset.
+   - Sử dụng Context API để chia sẻ state trong ứng dụng.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+3. **Kết Nối với API**:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+   - Sử dụng Axios hoặc Fetch để kết nối với [API](https://deckofcardsapi.com) để lấy thông tin về lá bài.
 
-## Learn More
+4. **Xử Lý Luật Chơi**:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   - Tạo hàm tính điểm của người chơi dựa trên 3 lá bài.
+   - Xác định người thắng và người thua sau khi Reveal.
+   - Trừ tiền từ người chơi thua.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+5. **Kết Hợp Giao Diện và Logic**:
+
+   - Lắng nghe các sự kiện như nhấn nút để gọi các hàm xử lý tương ứng.
+   - Cập nhật giao diện khi có sự thay đổi trong state.
+
+6. **Kiểm Tra Lỗi**:
+
+   - Xác định và xử lý các lỗi có thể xảy ra, chẳng hạn như không đủ lá bài.
+
+7. **Tích Hợp Các Tính Năng Bổ Sung** (tùy chọn):
+
+   - Thêm tính năng chơi nhiều ván liên tiếp.
+   - Thêm tính năng đặt cược.
+   - Thêm tính năng lưu trạng thái trò chơi.
+
+8. **Kiểm Tra và Debug**:
+
+   - Kiểm tra toàn bộ ứng dụng để đảm bảo hoạt động ổn định.
+   - Debug và sửa lỗi nếu cần.
+
+9. **Triển Khai Ứng Dụng**:
+
+   - Triển khai ứng dụng lên một môi trường thực tế (ví dụ: hosting trên web).
+
+10. **Kiểm Tra và Cải Tiến**:
+    - Thu thập ý kiến từ người dùng và tiến hành cải tiến dự án dựa trên phản hồi.
+
+## Cài Đặt và Sử Dụng
+
+1. Clone repository này: `git clone https://github.com/WonnDev/BaiCaoApp`
+2. Di chuyển vào thư mục dự án: `cd BaiCaoApp`
+3. Cài đặt các dependencies: `npm install`
+4. Khởi chạy ứng dụng: `npm start`
+
+## Demo ứng dụng
+
+Link:
+
+## Báo Cáo:
+
+- Đây là một trò chơi bài cào trực tuyến với các chức năng cơ bản bao gồm trộn bài, chia bài, trả kết quả, và khởi tạo lại trò chơi.
+- Trò chơi sử dụng React và quản lý state bằng Context API.
+- Dự án đã kết nối với API deckofcardsapi.com để lấy thông tin về lá bài.
+- Luật chơi đã được xác định và triển khai.
+- Giao diện trò chơi và logic đã được tích hợp.
+- Ứng dụng đã kiểm tra và debug để đảm bảo hoạt động ổn định.
+- Ứng dụng có tiềm năng để thêm các tính năng bổ sung như chơi nhiều ván liên tiếp, đặt cược, hoặc lưu trạng thái trò chơi.
+- Sau khi kiểm tra và thu thập phản hồi từ người dùng, có thể cần thực hiện các cải tiến và điều chỉnh thêm.

@@ -89,14 +89,13 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
           };
         }
       );
-      // console.log("updatePlayerCard(): ", updatedPlayersCards);
       return {
         ...state,
         players: updatedPlayersCards,
         deckCardRemaining: action.payload.remaining,
         drawn: true,
         revael: false,
-        gameOver: false,
+        // gameOver: false,
       };
 
     case "REVEAL_CARDS":
@@ -159,18 +158,16 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         }
         return { ...player };
       });
-      console.log(losers);
+      // Lọc những người chơi đã thua cuộc ra khỏi danh sách Player
       const updatedListPlayers = updatedPlayerCoin.filter(
         (player: any) => player.gameOver === false
       );
-      // console.log("updatedListPlayers:", updatedListPlayers.length);
-
       return {
         ...state,
         players: updatedListPlayers,
         winners: winners,
         losers: losers,
-        gameOver: true,
+        gameOver: losers.length === 0 ? true : false,
         revael: true,
       };
 
@@ -193,8 +190,7 @@ const App = () => {
   const [isShuffling, setIsShuffling] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
-  const [hide, setHide] = useState(false);
-  const [show, setShow] = useState(Boolean);
+  const [show, setShow] = useState(false);
   const [backCard, setBackCard] = useState("");
 
   const shuffleDeck = () => {
@@ -221,7 +217,6 @@ const App = () => {
       window.alert("Not Enough Card, Please Shuffle!");
     } else {
       setShow(false);
-      setHide(false);
       setIsDrawing(true);
       setTimeout(() => {
         setIsDrawing(false);
@@ -246,7 +241,6 @@ const App = () => {
   };
   const revealCards = () => {
     setShow(true);
-    setHide(true);
     setIsRevealing(true);
     setTimeout(() => {
       setIsRevealing(false);
@@ -258,7 +252,6 @@ const App = () => {
   };
 
   const resetGame = () => {
-    setHide(false);
     setIsShuffling(false);
     setIsDrawing(false);
     setIsRevealing(false);
@@ -273,6 +266,24 @@ const App = () => {
       .catch((error) => {
         console.error("Error shuffling deck:", error);
       });
+  };
+  const ListWinners = () => {
+    return (
+      <>
+        {state?.winners?.map((player: any) => {
+          return `${player} `;
+        })}
+      </>
+    );
+  };
+  const ListLosers = () => {
+    return (
+      <>
+        {state?.losers.map((player: any) => {
+          return `${player} `;
+        })}
+      </>
+    );
   };
   const CardHost = (props: any) => {
     return (
@@ -301,7 +312,7 @@ const App = () => {
   const InfoPlayer = (props: any) => {
     return (
       <>
-        {!state.gameOver ? (
+        {!state.revael ? (
           `${state?.players?.[props.value].name}`
         ) : (
           <div className="player-other">
@@ -355,21 +366,19 @@ const App = () => {
         setBackCard(imageURL);
       })
       .catch(console.error);
-    revealCards();
-    resetGame();
+    // revealCards();
+    // resetGame();
   }, []);
   useEffect(() => {
-    if (state?.gameOver) {
+    if (!!state?.revael) {
       if (state?.players?.length === 1) {
-        window.alert(`Congratulation ${state?.players?.[0].name}!`);
+        window.alert(`Congratulation ${state?.winners}!`);
       } else if (
         state?.players?.length === 2 &&
         state?.players?.[0].coins < 900 &&
         state?.players?.[1].coins < 900
       ) {
-        window.alert(
-          `Drawn Match! Congratulation ${state?.players?.[0].name} and ${state?.players?.[1].name}!`
-        );
+        window.alert(`Drawn Match! Congratulation ${state?.winners}!`);
       }
     }
   }, [state]);
@@ -389,9 +398,7 @@ const App = () => {
           </p>
           <p>
             <b style={{ fontSize: "22px" }}>
-              {state?.players?.[0]
-                ? `${state?.players?.[0].name}`
-                : "Lost Player"}
+              {state?.players?.[0] ? `${state?.players?.[0].name}` : "No Coins"}
             </b>
           </p>
           <p>
@@ -401,20 +408,21 @@ const App = () => {
         </div>
       </div>
       <div className="noti">
-        <div>
-          {!hide ? (
-            ""
-          ) : (
-            <div>{state?.winners ? `Winner: ${state?.winners[0]}` : ""}</div>
+        <div className="noti-winnerslist">
+          {!state.revael ? null : (
+            <>
+              {state?.gameOver === false && state?.winners ? "Winner: " : ""}
+              {state?.gameOver && state?.winners ? "Congratulation: " : ""}
+              <ListWinners />
+            </>
           )}
-          {!hide ? (
-            ""
-          ) : (
-            <div style={{ color: "gray" }}>
-              {state?.losers
-                ? `Losers: ${state?.losers[0]}, ${state?.losers[1]}, ${state?.losers[2]}`
-                : ""}
-            </div>
+        </div>
+        <div className="noti-loserslist">
+          {!state.revael ? null : (
+            <>
+              {state?.losers.length > 0 ? `Losers: ` : ""}
+              <ListLosers />
+            </>
           )}
         </div>
       </div>
@@ -433,7 +441,7 @@ const App = () => {
             className="border border-btn"
             style={{ backgroundColor: "#377D22" }}
             type="button"
-            disabled={isShuffling}
+            disabled={isShuffling || state?.gameOver === true}
             onClick={shuffleDeck}
           >
             {isShuffling ? "Shuffling..." : "Shuffle"}
@@ -453,7 +461,12 @@ const App = () => {
             className="border border-btn"
             style={{ backgroundColor: "#272727" }}
             type="button"
-            disabled={isRevealing || state?.revael || !state?.drawn}
+            disabled={
+              isRevealing ||
+              state?.revael ||
+              !state?.drawn ||
+              state?.gameOver === true
+            }
             onClick={revealCards}
           >
             {isRevealing ? "Revealing..." : "Reveal"}
@@ -471,19 +484,35 @@ const App = () => {
       </div>
       <div className="group-other-player">
         <div className="other-player-top other-player border">
-          {!state?.players?.[1] ? "Lost Player" : <InfoPlayer value={1} />}
+          {!state?.players?.[1] ? "No Coins" : <InfoPlayer value={1} />}
           <div className="cards-player">
-            {state?.players?.[1] ? (
-              <>{!!!show ? <CardHostback /> : <CardHost value={1} />}</>
+            {state?.players?.[1] && state?.players?.[1].cards.length > 0 ? (
+              <>{!show ? <CardHostback /> : <CardHost value={1} />}</>
             ) : (
               ""
             )}
+            {/* {state?.players?.[1] ? (
+              <>
+                <>
+                  {state?.players?.[1].cards.length > 0 && !state.revael ? (
+                    <CardHostback />
+                  ) : null}
+                </>
+                <>
+                  {state?.players?.[1].cards.length > 0 && state.revael ? (
+                    <CardHost value={1} />
+                  ) : null}
+                </>
+              </>
+            ) : (
+              ""
+            )} */}
           </div>
         </div>
         <div className="other-player-left other-player border">
-          {!state?.players?.[2] ? "Lost Player" : <InfoPlayer value={2} />}
+          {!state?.players?.[2] ? "No Coins" : <InfoPlayer value={2} />}
           <div className="cards-player">
-            {state?.players?.[2] ? (
+            {state?.players?.[2] && state?.players?.[2].cards.length > 0 ? (
               <>{!show ? <CardHostback /> : <CardHost value={2} />}</>
             ) : (
               ""
@@ -491,9 +520,9 @@ const App = () => {
           </div>
         </div>
         <div className="other-player-right other-player border">
-          {!state?.players?.[3] ? "Lost Player" : <InfoPlayer value={3} />}
+          {!state?.players?.[3] ? "No Coins" : <InfoPlayer value={3} />}
           <div className="cards-player">
-            {state?.players?.[3] ? (
+            {state?.players?.[3] && state?.players?.[3].cards.length > 0 ? (
               <>{!show ? <CardHostback /> : <CardHost value={3} />}</>
             ) : (
               ""
