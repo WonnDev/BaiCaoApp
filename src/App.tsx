@@ -403,7 +403,7 @@ const App = () => {
           </p>
           <p>
             Point of 3 cards:
-            {state?.players?.[0] ? `${state?.players?.[0].points}` : ""}
+            {state?.players?.[0] ? ` ${state?.players?.[0].points}` : ""}
           </p>
         </div>
       </div>
@@ -450,7 +450,7 @@ const App = () => {
             className="border border-btn"
             style={{ backgroundColor: "#EBB844" }}
             type="button"
-            disabled={isDrawing}
+            disabled={isDrawing || state?.gameOver === true}
             onClick={() => {
               drawCards();
             }}

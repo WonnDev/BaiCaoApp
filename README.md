@@ -2,7 +2,7 @@
 
 # Trò Chơi Bài Cào
 
-![Preview](link_to_preview_image.png)
+![Preview]![Alt text](preview1.png) ![Alt text](preview2.png) ![Alt text](preview3.png)
 
 ## Mô Tả
 
