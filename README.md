@@ -92,7 +92,7 @@
 
 ## Demo ứng dụng
 
-Link: [BaiCaoApp](https://8kxhzk-3000.csb.app/)
+Link: [BaiCaoApp](https://w74nv6-3000.csb.app/)
 
 ## Báo Cáo:
 
