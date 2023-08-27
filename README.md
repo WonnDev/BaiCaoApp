@@ -104,3 +104,5 @@ Link:
 - Ứng dụng đã kiểm tra và debug để đảm bảo hoạt động ổn định.
 - Ứng dụng có tiềm năng để thêm các tính năng bổ sung như chơi nhiều ván liên tiếp, đặt cược, hoặc lưu trạng thái trò chơi.
 - Sau khi kiểm tra và thu thập phản hồi từ người dùng, có thể cần thực hiện các cải tiến và điều chỉnh thêm.
+
+  
