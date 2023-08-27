@@ -71,6 +71,8 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckCardRemaining: action.payload.remaining,
         revael: false,
         drawn: false,
+        winners: [],
+        losers: [],
       };
 
     case "DRAW_CARDS":
@@ -95,7 +97,8 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckCardRemaining: action.payload.remaining,
         drawn: true,
         revael: false,
-        // gameOver: false,
+        winners: [],
+        losers: [],
       };
 
     case "REVEAL_CARDS":
@@ -152,8 +155,9 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
           if (player.coins > 900) {
             player.coins -= 900;
             losers.push(player.name);
-          } else {
-            player.gameOver = true;
+            if (player.coins < 900) {
+              player.gameOver = true;
+            }
           }
         }
         return { ...player };
@@ -162,12 +166,14 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
       const updatedListPlayers = updatedPlayerCoin.filter(
         (player: any) => player.gameOver === false
       );
+
       return {
         ...state,
         players: updatedListPlayers,
         winners: winners,
         losers: losers,
-        gameOver: losers.length === 0 ? true : false,
+        // gameOver: losers.length === 0 ? true : false,
+        gameOver: updatedListPlayers.length === 1 ? true : false,
         revael: true,
       };
 
@@ -178,6 +184,8 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         deckId: action.payload.deck_id,
         deckCardRemaining: action.payload.remaining,
         shuffle: action.payload.shuffed,
+        winners: [],
+        losers: [],
       };
     default:
       return state;
@@ -191,9 +199,11 @@ const App = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
   const [show, setShow] = useState(false);
+  const [notiShuffle, setNotiShuffle] = useState(false);
   const [backCard, setBackCard] = useState("");
 
   const shuffleDeck = () => {
+    setNotiShuffle(false);
     setIsShuffling(true);
     setTimeout(() => {
       setIsShuffling(false);
@@ -214,7 +224,9 @@ const App = () => {
 
   const drawCards = () => {
     if (state.deckCardRemaining < state.players.length * 3) {
-      window.alert("Not Enough Card, Please Shuffle!");
+      // window.alert("Not Enough Cards, Please Shuffle!");
+      state.revael = false;
+      setNotiShuffle(true);
     } else {
       setShow(false);
       setIsDrawing(true);
@@ -263,25 +275,25 @@ const App = () => {
           payload: res.data,
         });
       })
-      .catch((error) => {
-        console.error("Error shuffling deck:", error);
-      });
+      .catch(console.error);
   };
   const ListWinners = () => {
     return (
       <>
-        {state?.winners?.map((player: any) => {
+        {/* {state?.winners?.map((player: any) => {
           return `${player} `;
-        })}
+        })} */}
+        {state?.winners?.join(", ")}
       </>
     );
   };
   const ListLosers = () => {
     return (
       <>
-        {state?.losers.map((player: any) => {
+        {/* {state?.losers.map((player: any) => {
           return `${player} `;
-        })}
+        })} */}
+        {state?.losers?.join(", ")}
       </>
     );
   };
@@ -366,12 +378,13 @@ const App = () => {
         setBackCard(imageURL);
       })
       .catch(console.error);
-    // revealCards();
-    // resetGame();
   }, []);
   useEffect(() => {
-    if (!!state?.revael) {
-      if (state?.players?.length === 1) {
+    console.log(state);
+    if (state?.revael) {
+      if (
+        state?.players?.filter((player: any) => !player.gameOver).length === 1
+      ) {
         window.alert(`Congratulation ${state?.winners}!`);
       } else if (
         state?.players?.length === 2 &&
@@ -391,13 +404,13 @@ const App = () => {
         </div>
         <div className="user-info">
           <p>
-            Point: {state?.players?.[0] ? `${state?.players?.[0].point}` : ""}
+            Point:{state?.players?.[0] ? ` ${state?.players?.[0].point}` : ""}
           </p>
           <p>
-            Coins: {state?.players?.[0] ? `${state?.players?.[0].coins}` : ""}
+            Coins:{state?.players?.[0] ? ` ${state?.players?.[0].coins}` : ""}
           </p>
           <p>
-            <b style={{ fontSize: "22px" }}>
+            <b className="name">
               {state?.players?.[0] ? `${state?.players?.[0].name}` : "No Coins"}
             </b>
           </p>
@@ -425,6 +438,10 @@ const App = () => {
             </>
           )}
         </div>
+        <div className="noti-not-enough-cards">
+          {/* {!state.draw && state.deckCardRemaining < state.players.length * 3 ? ( */}
+          {notiShuffle ? "Not Enough Cards, Please Shuffle!" : null}
+        </div>
       </div>
       <div className="group">
         <div
@@ -441,7 +458,7 @@ const App = () => {
             className="border border-btn"
             style={{ backgroundColor: "#377D22" }}
             type="button"
-            disabled={isShuffling || state?.gameOver === true}
+            disabled={isShuffling || state?.gameOver}
             onClick={shuffleDeck}
           >
             {isShuffling ? "Shuffling..." : "Shuffle"}
