@@ -29,7 +29,7 @@ const initialState = {
       cards: [],
     },
     {
-      name: "Player D",
+      name: "Player D (You)",
       coins: 5000,
       points: 0,
       point: 0,
@@ -86,8 +86,7 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
           );
           return {
             ...player,
-            cards: player.coins < 900 ? [] : playerCards,
-            gameOver: player.coins < 900 ? true : false,
+            cards: player.gameOver === true ? [] : playerCards,
           };
         }
       );
@@ -162,14 +161,15 @@ const gameReducer = (state: any, action: { type: any; payload?: any }) => {
         }
         return { ...player };
       });
-      // Lọc những người chơi đã thua cuộc ra khỏi danh sách Player
+      // Lọc những người chơi đã thua cuộc ra khỏi danh sách Players
       const updatedListPlayers = updatedPlayerCoin.filter(
         (player: any) => player.gameOver === false
       );
 
       return {
         ...state,
-        players: updatedListPlayers,
+        // players: updatedListPlayers,
+        players: updatedPlayerCoin,
         winners: winners,
         losers: losers,
         // gameOver: losers.length === 0 ? true : false,
@@ -223,7 +223,10 @@ const App = () => {
   };
 
   const drawCards = () => {
-    if (state.deckCardRemaining < state.players.length * 3) {
+    const listPlayers = state.players.filter(
+      (player: any) => player.gameOver === false
+    );
+    if (state.deckCardRemaining < listPlayers.length * 3) {
       // window.alert("Not Enough Cards, Please Shuffle!");
       state.revael = false;
       setNotiShuffle(true);
@@ -237,7 +240,7 @@ const App = () => {
       axios
         .get(
           `https://deckofcardsapi.com/api/deck/${state.deckId}/draw/?count=${
-            state.players.length * 3
+            listPlayers.length * 3
           }`
         )
         .then((res) => {
@@ -327,7 +330,7 @@ const App = () => {
         {!state.revael ? (
           `${state?.players?.[props.value].name}`
         ) : (
-          <div className="player-other">
+          <div className="player-other-info">
             <p>
               Point:{" "}
               {state?.players?.[props.value]
@@ -358,6 +361,16 @@ const App = () => {
       </>
     );
   };
+  const NameNoCoin = (props: any) => {
+    return (
+      <>
+        <div className="name-nocoins">
+          <span>{state?.players?.[props.value].name}</span>
+          <span>No Coins</span>
+        </div>
+      </>
+    );
+  };
 
   useEffect(() => {
     // Call API to get card, save deckId to state
@@ -379,44 +392,28 @@ const App = () => {
       })
       .catch(console.error);
   }, []);
-  useEffect(() => {
-    console.log(state);
-    if (state?.revael) {
-      if (
-        state?.players?.filter((player: any) => !player.gameOver).length === 1
-      ) {
-        window.alert(`Congratulation ${state?.winners}!`);
-      } else if (
-        state?.players?.length === 2 &&
-        state?.players?.[0].coins < 900 &&
-        state?.players?.[1].coins < 900
-      ) {
-        window.alert(`Drawn Match! Congratulation ${state?.winners}!`);
-      }
-    }
-  }, [state]);
 
   return (
     <div id="view_player">
       <div className="group-view border">
         <div className="cards">
-          {state?.players?.[0] ? <CardHost value={0} /> : ""}
+          {state?.players?.[3] ? <CardHost value={3} /> : ""}
         </div>
-        <div className="user-info">
+        <div className="player-info">
           <p>
-            Point:{state?.players?.[0] ? ` ${state?.players?.[0].point}` : ""}
+            Point:{state?.players?.[3] ? ` ${state?.players?.[3].point}` : ""}
           </p>
           <p>
-            Coins:{state?.players?.[0] ? ` ${state?.players?.[0].coins}` : ""}
+            Coins:{state?.players?.[3] ? ` ${state?.players?.[3].coins}` : ""}
           </p>
           <p>
             <b className="name">
-              {state?.players?.[0] ? `${state?.players?.[0].name}` : "No Coins"}
+              {state?.players?.[3] ? `${state?.players?.[3].name}` : "No Coins"}
             </b>
           </p>
           <p>
             Point of 3 cards:
-            {state?.players?.[0] ? ` ${state?.players?.[0].points}` : ""}
+            {state?.players?.[3] ? ` ${state?.players?.[3].points}` : ""}
           </p>
         </div>
       </div>
@@ -441,6 +438,7 @@ const App = () => {
         <div className="noti-not-enough-cards">
           {/* {!state.draw && state.deckCardRemaining < state.players.length * 3 ? ( */}
           {notiShuffle ? "Not Enough Cards, Please Shuffle!" : null}
+          {state.gameOver ? "Game Over, Please Reset!" : null}
         </div>
       </div>
       <div className="group">
@@ -501,7 +499,11 @@ const App = () => {
       </div>
       <div className="group-other-player">
         <div className="other-player-top other-player border">
-          {!state?.players?.[1] ? "No Coins" : <InfoPlayer value={1} />}
+          {state?.players?.[1].gameOver ? (
+            <NameNoCoin value={1} />
+          ) : (
+            <InfoPlayer value={1} />
+          )}
           <div className="cards-player">
             {state?.players?.[1] && state?.players?.[1].cards.length > 0 ? (
               <>{!show ? <CardHostback /> : <CardHost value={1} />}</>
@@ -527,7 +529,11 @@ const App = () => {
           </div>
         </div>
         <div className="other-player-left other-player border">
-          {!state?.players?.[2] ? "No Coins" : <InfoPlayer value={2} />}
+          {state?.players?.[2].gameOver ? (
+            <NameNoCoin value={2} />
+          ) : (
+            <InfoPlayer value={2} />
+          )}
           <div className="cards-player">
             {state?.players?.[2] && state?.players?.[2].cards.length > 0 ? (
               <>{!show ? <CardHostback /> : <CardHost value={2} />}</>
@@ -537,10 +543,14 @@ const App = () => {
           </div>
         </div>
         <div className="other-player-right other-player border">
-          {!state?.players?.[3] ? "No Coins" : <InfoPlayer value={3} />}
+          {state?.players?.[0].gameOver ? (
+            <NameNoCoin value={0} />
+          ) : (
+            <InfoPlayer value={0} />
+          )}
           <div className="cards-player">
-            {state?.players?.[3] && state?.players?.[3].cards.length > 0 ? (
-              <>{!show ? <CardHostback /> : <CardHost value={3} />}</>
+            {state?.players?.[0] && state?.players?.[0].cards.length > 0 ? (
+              <>{!show ? <CardHostback /> : <CardHost value={0} />}</>
             ) : (
               ""
             )}

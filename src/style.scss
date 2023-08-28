@@ -52,7 +52,7 @@ button {
   width: 360px;
   height: 190px;
   position: relative;
-  top: 15%;
+  top: 20%;
   > * {
     height: 100%;
   }
@@ -99,7 +99,7 @@ button {
   justify-content: center;
   font-size: 22px;
 }
-.user-info {
+.player-info {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -134,6 +134,12 @@ button {
   align-items: center;
   justify-content: center;
   padding: 5px;
+  .name-nocoins {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 }
 .other-player-top {
   top: 10px;
@@ -159,7 +165,7 @@ button {
     padding-right: 2px;
   }
 }
-.player-other {
+.player-other-info {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,10 +186,12 @@ button {
     color: darkgray;
   }
 }
+
 @media screen and (max-width: 480px) {
   .other-player {
     width: 75px;
     height: 75px;
+    font-size: 13px;
   }
   .other-player-top {
     left: 155px;
@@ -203,7 +211,7 @@ button {
   .noti {
     font-size: 22px;
   }
-  .player-other > p {
+  .player-other-info > p {
     font-size: 10px;
   }
   .cards {
@@ -211,7 +219,7 @@ button {
       width: 48px;
     }
   }
-  .user-info {
+  .player-info {
     .name {
         font-size: 18px;
     }
