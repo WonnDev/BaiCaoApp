@@ -438,6 +438,8 @@ const App = () => {
         <div className="noti-not-enough-cards">
           {/* {!state.draw && state.deckCardRemaining < state.players.length * 3 ? ( */}
           {notiShuffle ? "Not Enough Cards, Please Shuffle!" : null}
+        </div>
+        <div className="noti-gameover">
           {state.gameOver ? "Game Over, Please Reset!" : null}
         </div>
       </div>
